@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta X AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  height:100vh;
+  font-family:'Poppins',sans-serif;
+  background:
+    radial-gradient(circle at top left,#00ffd530,transparent 40%),
+    radial-gradient(circle at bottom right,#0077ff30,transparent 40%),
+    #050505;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+}
+.app{
+  width:420px;
+  max-width:95%;
+  height:620px;
+  backdrop-filter: blur(18px);
+  background:rgba(15,15,15,.75);
+  border-radius:20px;
+  box-shadow:0 25px 60px rgba(0,255,213,.15);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.header{
+  padding:18px;
+  display:flex;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.logo{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,#00ffd5,#0077ff);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:bold;color:#000;
+}
+.chat{flex:1;padding:15px;overflow-y:auto}
+.msg{max-width:80%;margin-bottom:12px;padding:12px 14px;border-radius:14px}
+.user{margin-left:auto;background:linear-gradient(135deg,#00ffd5,#00b3ff);color:#000}
+.ai{background:rgba(255,255,255,.05)}
+.input-box{display:flex;gap:10px;padding:12px;border-top:1px solid rgba(255,255,255,.08)}
+input{flex:1;padding:12px;border-radius:14px;border:none;background:#ffffff10;color:#fff}
+button{width:48px;height:48px;border:none;border-radius:50%;background:linear-gradient(135deg,#00ffd5,#0077ff)}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">MX</div>
+    <div>
+      <b>Meta X AI</b><br>
+      <small>Intelligence artificielle</small>
+    </div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="msg ai">👋 Bonjour, je suis <b>Meta X AI</b>. Comment puis-je t’aider ?</div>
+  </div>
+
+  <div class="input-box">
+    <input id="input" placeholder="Écris ton message..." />
+    <button onclick="send()">➤</button>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+
+function addMsg(text, cls){
+  const div = document.createElement("div");
+  div.className = "msg " + cls;
+  div.innerHTML = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function send(){
+  const text = input.value.trim();
+  if(!text) return;
+
+  addMsg(text, "user");
+  input.value = "";
+
+  const thinking = document.createElement("div");
+  thinking.className = "msg ai";
+  thinking.innerHTML = "⏳ Meta X AI réfléchit...";
+  chat.appendChild(thinking);
+
+  try{
+    const res = await fetch("/api/chat", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+    thinking.remove();
+    addMsg(data.reply, "ai");
+
+  }catch(e){
+    thinking.remove();
+    addMsg("❌ Erreur de connexion à Meta X AI", "ai");
+  }
+}
+</script>
+</body>
+</html>
